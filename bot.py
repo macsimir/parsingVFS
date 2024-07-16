@@ -108,8 +108,27 @@ async def gender_command_vs(callback: types.CallbackQuery, state: FSMContext):
     while not success:
         try:
             await callback.message.answer("Подождите...")
-            last_date = parsing_vfs(click_city=click_city)
+            # last_date = parsing_vfs(click_city=click_city)
+            last_date = "click_city"
             success = True  # Если выполнение прошло успешно, выходим из цикла
+            date_new_ActiveOrders = ActiveOrders(
+                last_date=last_date,
+                right_center_city=city,
+                click_city=click_city,
+                name=name,
+                surname = surname,
+                gender=gender,
+                date_of_birth = date_of_birth,
+                passport_ID = passport_ID,
+                passport_validity_period = passport_validity_period,
+                number_phone= number_phone,
+                email=email
+            )
+            
+            session = Session()
+            session.add(date_new_ActiveOrders)
+            session.commit()
+            session.close()
         except Exception as e:
             # Обработка ошибки
             print(f"Произошла ошибка: {e}")
@@ -117,7 +136,38 @@ async def gender_command_vs(callback: types.CallbackQuery, state: FSMContext):
 
     await callback.message.answer(f'Последняя доступная дата {last_date}')
     await callback.message.answer("Заявка создана!")
- 
+
+@dp.callback_query(F.data == "all_active_orders")
+async def all_active_orders(callback: types.CallbackQuery, state:FSMContext):
+    session = Session()
+    try:
+        orders = session.query(ActiveOrders).all()
+        if orders:
+            response = ""
+            for order in orders:
+                response += (
+                    f"ID: {order.id}\n"
+                    f"Last Date: {order.last_date}\n"
+                    f"City: {order.right_center_city}\n"
+                    f"Click City: {order.click_city}\n"
+                    f"Name: {order.name}\n"
+                    f"Surname: {order.surname}\n"
+                    f"Gender: {order.gender}\n"
+                    f"Date of Birth: {order.date_of_birth}\n"
+                    f"Passport ID: {order.passport_ID}\n"
+                    f"Passport Validity: {order.passport_validity_period}\n"
+                    f"Phone Number: {order.number_phone}\n"
+                    f"Email: {order.email}\n"
+                    "-----------------------\n"
+                )
+            await callback.message.answer(response)
+        else:
+            await callback.message.answer("Нет активных заказов.")
+    except Exception as e:
+        await callback.message.answer(f"Произошла ошибка: {e}")
+    finally:
+        session.close()
+
 
     
 
@@ -258,7 +308,7 @@ def parsing_vfs(click_city):
         
         sb.click('mat-form-field[class="mat-form-field mat-form-field-outline-brand ng-tns-c64-6 mat-primary mat-form-field-type-mat-select mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-invalid ng-star-inserted"')
         sb.click('mat-option[id="mat-option-24"]')
-        time.sleep(10)
+        time.sleep(15)
 
                 
                 

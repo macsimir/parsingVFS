@@ -9,7 +9,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 def start_btn():
     buttons = [
-        [types.InlineKeyboardButton(text="Новая запись", callback_data="new appointment"), types.InlineKeyboardButton(text="Поменять аккаунт", callback_data="new_acc")]
+        [types.InlineKeyboardButton(text="Новая запись", callback_data="new appointment"), types.InlineKeyboardButton(text="Поменять аккаунт", callback_data="new_acc")],
+        [types.InlineKeyboardButton(text="Активные заявки", callback_data="all_active_orders")]
         ]
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard
