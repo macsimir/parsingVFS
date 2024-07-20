@@ -17,6 +17,7 @@ from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram import types
+from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 from db import ActiveOrders,Account
 from button_bot import *
@@ -31,11 +32,87 @@ import time
 bot = Bot(token="6975877359:AAHiKPfQSY82HE_WtfE_ZD4mEBeUF_z2DeM")
 dp = Dispatcher()
 Base = declarative_base()
+subtype_visa_click = "" 
 
 
 @dp.message(Command("start"))
 async def start_command(message: types.Message, state: FSMContext):
     await message.answer("Привет. Выбери действия:", reply_markup=start_btn())
+
+
+# @dp.message(Form_statements.type_visa)
+# async def type_visa(message: types.Message, state: FSMContext):
+#     await message.answer("Выберите категорию записи", reply_markup=type_visa_btn())
+#     await state.set_state(Form_statements.subtype_visa)
+
+
+@dp.callback_query(lambda c: c.data and c.data.startswith('v_'))
+async def type_visa(callback: types.CallbackQuery, state: FSMContext):
+    global type_visa_click
+    date = callback.data 
+    if date == "v_short":
+        type_visa_click = "mat-option-20"
+        await callback.message.answer("Выберите подкатегорию записи", reply_markup=subtype_visa_btn_short())
+    elif date == "v_national":
+        type_visa_click = "mat-option-21"
+        await callback.message.answer("Выберите подкатегорию записи", reply_markup=subtype_visa_btn_national())
+
+
+
+
+@dp.callback_query(lambda c: c.data and c.data.startswith('s_'))
+async def subtype_visa_1(callback: types.CallbackQuery, state: FSMContext):
+    global subtype_visa_click
+    date = callback.data 
+    if date == "s_1":
+        subtype_visa_click = "mat-option-22"
+    elif date == "s_2":
+        subtype_visa_click = "mat-option-23"
+    elif date == "s_3":
+        subtype_visa_click = "mat-option-24"
+    elif date == "s_4":
+        subtype_visa_click = "mat-option-25"
+    elif date == "s_5":
+        subtype_visa_click = "mat-option-26"
+    elif date == "s_6":
+        subtype_visa_click = "mat-option-27"
+    await state.set_state(Form_statements.name)
+    await callback.message.answer("Введите ваше имя:")
+    
+
+    
+@dp.callback_query(lambda c: c.data and c.data.startswith('n_'))
+async def subtype_visa_2(callback: types.CallbackQuery, state: FSMContext):
+    global subtype_visa_click
+    code = callback.data
+    if code == "n_1":
+        subtype_visa_click = "mat-option-22"
+    elif code == "n_2":
+        subtype_visa_click = "mat-option-23"
+    elif code == "n_3":
+        subtype_visa_click = "mat-option-24"
+    elif code == "n_4":
+        subtype_visa_click = "mat-option-25"
+    elif code == "n_5":
+        subtype_visa_click = "mat-option-26"
+    elif code == "n_6":
+        subtype_visa_click = "mat-option-27"
+    elif code == "n_7":
+        subtype_visa_click = "mat-option-28"
+    elif code == "n_8":
+        subtype_visa_click = "mat-option-29"
+    else:
+        response = "Неизвестный выбор"
+    await callback.state.set_state(Form_statements.name)
+    await callback.message.answer("Введите ваше имя:")
+
+
+
+# @dp.message(Form_statements.subtype_visa)
+# async def subtype_visa(message: types.Message, state: FSMContext):
+#     await message.answer("Выберите подкатегорию записи", reply_markup=subtype_visa)
+#     await state.set_state(Form_statements.name)
+
 
 @dp.message(Form_statements.name)
 async def process_name(message: types.Message, state: FSMContext):
@@ -115,6 +192,8 @@ async def gender_command_vs(callback: types.CallbackQuery, state: FSMContext):
                 last_date=last_date,
                 right_center_city=city,
                 click_city=click_city,
+                type_visa = type_visa_click,
+                subtype_visa = subtype_visa_click,
                 name=name,
                 surname = surname,
                 gender=gender,
@@ -214,7 +293,7 @@ async def city_selection(callback: types.CallbackQuery, state: FSMContext):
     elif action == "msk":
         click_city= "mat-option-8"
         city = "Москва"
-        
+    elif action == "sity_nvsb":
         click_city= "mat-option-9"
         city = "Нижний Новгород"
     elif action == "nvsb":
@@ -247,8 +326,12 @@ async def city_selection(callback: types.CallbackQuery, state: FSMContext):
     elif action == "rostov":
         click_city= "mat-option-19"
         city = "Ростов-на-Дону"
-    await state.set_state(Form_statements.name)
-    await callback.message.answer("Введите ваше имя:")
+    # await state.set_state(Form_statements.type_visa)
+    await callback.message.answer("Выберите категорию записи", reply_markup=type_visa_btn())
+    # await callback.message.answer("Введите ваше имя:")
+
+    
+ 
 
 @dp.callback_query(F.data == "new_acc")
 async def new_acc_command(callback: types.CallbackQuery, state: FSMContext ):
@@ -318,7 +401,7 @@ def parsing_vfs(click_city):
 
 
 
-engine = create_engine('sqlite:///DATABASE.db')
+engine = create_engine('sqlite:///example.db')
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 

@@ -10,6 +10,8 @@ class ActiveOrders(Base):
     last_date = Column(String)
     right_center_city = Column(String)
     click_city = Column(String)
+    type_visa = Column(String)
+    subtype_visa = Column(String)
     name = Column(String)
     surname = Column(String)
     gender = Column(String)

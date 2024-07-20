@@ -16,7 +16,6 @@ class New_account(StatesGroup):
 
 class Form_statements(StatesGroup):
     """Форма чтобы их задавал бот"""
-
     name = State() #Имя 
     surname = State() #Фамилия 
     date_of_birth = State() #Дата рождения 
